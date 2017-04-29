@@ -1,5 +1,3 @@
-package computernetwork;
-
 /**
  * 
  * @author Gian Brazzini
@@ -24,14 +22,13 @@ public class TransferHandler {
 	private static Socket socket;
 	byte[] fileData = null;
 	long fileLength, check, index = 0, lastIndex;
-	String fileName = "", protocol;
+	String fileName = "";
 	OutputStream out = null;
 	InputStream in = null;
 	
-	public TransferHandler(Logger _log, int _port, String _protocol) {
+	public TransferHandler(Logger _log, int _port) {
 		log = _log;
 		port = _port;
-		protocol = _protocol;
 	}
 	
 	/**

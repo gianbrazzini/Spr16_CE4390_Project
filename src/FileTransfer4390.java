@@ -1,18 +1,19 @@
-package computernetwork;
 
 import java.io.File;
 import java.util.*;
 
 /**
- * 
  * @author Gian Brazzini
- *
  */
 class FileTransfer4390
 {
 	private static final boolean DEBUG = true;
 	public static final int DEFAULT_PORT = 10001;
-	public static final String SEND = "send", RECEIVE = "receive", EMPTY = "";
+	public static final String SEND = "send", 
+			RECEIVE = "receive", 
+			TCP = "tcp", 
+			UDP = "udp",
+			EMPTY = "";
 
 	static Scanner scanner = new Scanner(System.in); 
 	private static Logger logs;
@@ -29,6 +30,38 @@ class FileTransfer4390
 	 */
 	public static void main(String args[]) {
 		logs = new Logger(args);
+		
+		init(args);
+		if (!validateInitialization())
+			return;
+		
+		try {
+			transfer = new TransferHandler(logs, port);
+			if (action.equals(SEND)) {
+				/* User selected UDP */
+				if (protocol.equals(UDP)) {
+					//write code
+				/* TCP as default */
+				} else {
+					transfer.sendFile(inputFile);
+				}
+			} else if (action.equals(RECEIVE)) {
+				/* User selected UDP */
+				if (protocol.equals(UDP)) {
+					
+				/* TCP as default */
+				} else {
+					transfer.receiveFile(address);
+				}
+			} else {
+				logs.error("There was an error performing operation. Reason= No action named" + action);
+			}
+		} catch (Exception e) {
+			logs.error(e.toString());
+		}
+	}	
+	
+	private static void init(String args[]) {
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equalsIgnoreCase("--"+SEND) || args[i].equalsIgnoreCase("--"+RECEIVE)) {
 				if (action.equals(EMPTY)) {
@@ -63,23 +96,7 @@ class FileTransfer4390
 				i++;
 			}
 		}
-		
-		if (!validateInitialization())
-			return;
-		
-		try {
-			transfer = new TransferHandler(logs, port, protocol);
-			if (action.equals(SEND)) {
-				transfer.sendFile(inputFile);
-			} else if (action.equals(RECEIVE)) {
-				transfer.receiveFile(address);
-			} else {
-				logs.error("There was an error performing operation. Reason= No action named" + action);
-			}
-		} catch (Exception e) {
-			logs.error(e.toString());
-		}
-	}	
+	}
 	
 	private static boolean validateInitialization()
 	{

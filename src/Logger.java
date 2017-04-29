@@ -1,4 +1,3 @@
-package computernetwork;
 
 public class Logger {
 
