@@ -1,58 +1,16 @@
-package computernetwork;
 
-import computernetwork.UDPFileTransfer;
 import java.io.*;
 import java.net.*;
 
 public class UDPClient {
 
-    private DatagramSocket soc = null;
-    private UDPFileTransfer transfer = null;
-    private String A_directory = "C:\\Users\\Maisha\\Desktop\\UDP\\A\\fruits.txt";
-    private String B_directory = "C:\\Users\\Maisha\\Desktop\\UDP\\B\\";
-    private String host = "localHost";
+    private static DatagramSocket soc = null;
+    private static UDPFileTransfer transfer = null;
+    private static String A_directory = "C:\\Users\\Maisha\\Desktop\\UDP\\A\\fruits.txt";
+    private static String B_directory = "C:\\Users\\Maisha\\Desktop\\UDP\\B\\";
+    private static String host = "localHost";
 
-    public UDPClient() {
-    }
-
-    public void ConnectionSetup() {
-
-        try {
-
-            soc = new DatagramSocket();                                         //open socket
-            InetAddress ip_adrs = InetAddress.getByName(host);                  //host ip adrs
-            byte[] receivedContent = new byte[1024];
-            transfer = getFileTransfer();
-            
-            ByteArrayOutputStream byte_os = new ByteArrayOutputStream();        //creates a ByteArrayOutputStream buffer of 32 byte.
-            ObjectOutputStream obj_os = new ObjectOutputStream(byte_os);        //writes primitive data types & graphs of Java objects
-            obj_os.writeObject(transfer);
-            
-            byte[] content = byte_os.toByteArray();
-            DatagramPacket sendFile = new DatagramPacket(content, content.length, ip_adrs, 3500);
-            soc.send(sendFile);                                                 //Sending file
-            System.out.println("File has been sent from UDPClient");            //file sent output
-            
-            DatagramPacket receivedFile = new DatagramPacket(receivedContent, receivedContent.length); //receivedFile for Server
-            soc.receive(receivedFile);
-            String ack = new String(receivedFile.getData());                     //library class DatagramPacket getData()
-            System.out.println("UDPServer " + ack);
-            
-            Thread.sleep(2000);
-            System.exit(0);
-
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public UDPFileTransfer getFileTransfer() {
+    public static UDPFileTransfer getFileTransfer() {
 
         UDPFileTransfer file_transfer = new UDPFileTransfer();
         String name = A_directory.substring(A_directory.lastIndexOf("\\") + 1, A_directory.length()); // filename from the directory
@@ -96,7 +54,38 @@ public class UDPClient {
     }
 
     public static void main(String[] args) {
-        UDPClient client = new UDPClient();
-        client.ConnectionSetup();
+    	try {
+
+            soc = new DatagramSocket();                                         //open socket
+            InetAddress ip_adrs = InetAddress.getByName(host);                  //host ip adrs
+            byte[] receivedContent = new byte[1024];
+            transfer = getFileTransfer();
+            
+            ByteArrayOutputStream byte_os = new ByteArrayOutputStream();        //creates a ByteArrayOutputStream buffer of 32 byte.
+            ObjectOutputStream obj_os = new ObjectOutputStream(byte_os);        //writes primitive data types & graphs of Java objects
+            obj_os.writeObject(transfer);
+            
+            byte[] content = byte_os.toByteArray();
+            DatagramPacket sendFile = new DatagramPacket(content, content.length, ip_adrs, 3500);
+            soc.send(sendFile);                                                 //Sending file
+            System.out.println("File has been sent from UDPClient");            //file sent output
+            
+            DatagramPacket receivedFile = new DatagramPacket(receivedContent, receivedContent.length); //receivedFile for Server
+            soc.receive(receivedFile);
+            String ack = new String(receivedFile.getData());                     //library class DatagramPacket getData()
+            System.out.println("UDPServer " + ack);
+            
+            Thread.sleep(2000);
+            System.exit(0);
+
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

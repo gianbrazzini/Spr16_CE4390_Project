@@ -1,5 +1,4 @@
 /**
- * 
  * @author Gian Brazzini
  *
  */
@@ -128,7 +127,6 @@ public class TransferHandler {
         log.log("File successfully downloaded.\n\n");
         close();
 	}
-	
 	
 	/**
 	 * 

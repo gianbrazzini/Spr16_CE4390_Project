@@ -1,4 +1,3 @@
-package computernetwork;
 
 import java.io.Serializable;
 
