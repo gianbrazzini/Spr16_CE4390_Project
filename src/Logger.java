@@ -2,23 +2,20 @@
 public class Logger {
 
 	
-	public Logger(String[] args){
+	public Logger(String[] args) {
 		
 	}
 	
-	public void log(String message)
-	{
+	public void log(String message) {
 		System.out.print(message);
 	}
 	
-	public void warn(String message)
-	{
+	public void warn(String message) {
 		System.out.print("WARNING: ");
 		System.out.println(message);
 	}
 	
-	public void error(String error)
-	{
+	public void error(String error) {
 		System.out.print("\nERROR: ");
 		System.out.println(error);
 		if (error.equals(""))

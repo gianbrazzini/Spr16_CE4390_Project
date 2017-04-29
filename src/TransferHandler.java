@@ -22,14 +22,14 @@ public class TransferHandler {
 	private static Socket socket;
 	byte[] fileData = null;
 	long fileLength, check, index = 0, lastIndex;
-	String fileName = "";
+	String fileName = "", protocol;
 	OutputStream out = null;
 	InputStream in = null;
 	
-	public TransferHandler(Logger _log, int _port)
-	{
+	public TransferHandler(Logger _log, int _port, String _protocol) {
 		log = _log;
 		port = _port;
+		protocol = _protocol;
 	}
 	
 	/**
@@ -40,7 +40,7 @@ public class TransferHandler {
 	 */
 	public void receiveFile(String address) throws UnknownHostException, IOException
 	{	
-		log.log("\nAttemting to connect at "+ address +":"+ port);
+		log.log("\nAttemting to connect to "+ address +":"+ port + "...");
 		socket = new Socket(address, port);
 		out = socket.getOutputStream();
 		in = socket.getInputStream();
@@ -50,6 +50,7 @@ public class TransferHandler {
     		 request[];
         
         long req_check, req_index, req_lastIndex, req_status;
+        int ack = 0;
         byte[] req_data;
         while (true)
         {
@@ -64,8 +65,8 @@ public class TransferHandler {
         		request = populatePacket(request, check + fileLength, 0);
         		out.write(request, 0, PACKET_SIZE);
         		
-        		log.log("\nNow downloading..." + fileName + 
-        				"..." + fileSize(fileLength) + "...\n");
+        		log.log("Success!\nStarting download... file=" + fileName + 
+        				", size=" + fileSize(fileLength) + "\n");
         		lastIndex = (int) ((fileLength/1024) + 1);
         		index = 0;
         		fileData = new byte[(int)fileLength];
@@ -285,7 +286,6 @@ public class TransferHandler {
 	}
 	
 	private byte[] populatePacket(byte[] packet, byte[] data, long index) {
-		
 		long len = data.length;
 		int from = (int)(index)*1024,
 			to = Math.min((int)((index+1)*1024)-1, (int)len);
@@ -383,8 +383,7 @@ public class TransferHandler {
 		return byteToLong(Arrays.copyOfRange(bytes, index, index+8));
 	}
 	
-	private boolean isLong(byte[] bytes, int index, long compare)
-	{
+	private boolean isLong(byte[] bytes, int index, long compare) {
 		return new Long(byteToLong(Arrays.copyOfRange(bytes, index, 8))).equals(compare);
 	}
 	
@@ -392,8 +391,7 @@ public class TransferHandler {
 		return Arrays.copyOfRange(response, 1023, 2047);
 	}
 	
-	private String fileSize(long bytes)
-	{
+	private String fileSize(long bytes) {
 		return bytes + " bytes";
 	}
 	
@@ -403,7 +401,8 @@ public class TransferHandler {
 	        in.close();
 	        socket.close();
 		} catch (Exception e) {
-			
+			log.error(e.toString());
+			System.exit(-1);
 		}
 	}
 	
