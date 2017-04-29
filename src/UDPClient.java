@@ -1,15 +1,15 @@
 package computernetwork;
 
-import FileTransfer4390.FileTransfer;
+import computernetwork.UDPFileTransfer;
 import java.io.*;
 import java.net.*;
 
 public class UDPClient {
 
     private DatagramSocket soc = null;
-    private FileTransfer transfer = null;
-    private String A_directory = "C:\\Users\\Maisha\\Desktop\\A\\fruits.txt";
-    private String B_directory = "C:\\Users\\Maisha\\Desktop\\B\\";
+    private UDPFileTransfer transfer = null;
+    private String A_directory = "C:\\Users\\Maisha\\Desktop\\UDP\\A\\fruits.txt";
+    private String B_directory = "C:\\Users\\Maisha\\Desktop\\UDP\\B\\";
     private String host = "localHost";
 
     public UDPClient() {
@@ -19,21 +19,25 @@ public class UDPClient {
 
         try {
 
-            soc = new DatagramSocket();
-            InetAddress ip_adrs = InetAddress.getByName(host);
+            soc = new DatagramSocket();                                         //open socket
+            InetAddress ip_adrs = InetAddress.getByName(host);                  //host ip adrs
             byte[] receivedContent = new byte[1024];
             transfer = getFileTransfer();
-            ByteArrayOutputStream byte_os = new ByteArrayOutputStream();
-            ObjectOutputStream obj_os = new ObjectOutputStream(byte_os);
+            
+            ByteArrayOutputStream byte_os = new ByteArrayOutputStream();        //creates a ByteArrayOutputStream buffer of 32 byte.
+            ObjectOutputStream obj_os = new ObjectOutputStream(byte_os);        //writes primitive data types & graphs of Java objects
             obj_os.writeObject(transfer);
+            
             byte[] content = byte_os.toByteArray();
             DatagramPacket sendFile = new DatagramPacket(content, content.length, ip_adrs, 3500);
-            soc.send(sendFile);
-            System.out.println("File has been transfered from UDPClient");
-            DatagramPacket receivedFile = new DatagramPacket(receivedContent, receivedContent.length);
+            soc.send(sendFile);                                                 //Sending file
+            System.out.println("File has been sent from UDPClient");            //file sent output
+            
+            DatagramPacket receivedFile = new DatagramPacket(receivedContent, receivedContent.length); //receivedFile for Server
             soc.receive(receivedFile);
-            String reply = new String(receivedFile.getData());       //library class DatagramPacket getData()
-            System.out.println("UDPServer: " + reply);
+            String ack = new String(receivedFile.getData());                     //library class DatagramPacket getData()
+            System.out.println("UDPServer " + ack);
+            
             Thread.sleep(2000);
             System.exit(0);
 
@@ -48,11 +52,12 @@ public class UDPClient {
         }
     }
 
-    public FileTransfer getFileTransfer() {
+    public UDPFileTransfer getFileTransfer() {
 
-        FileTransfer file_transfer = new FileTransfer();
-        String name = A_directory.substring(A_directory.lastIndexOf("\\") + 1, A_directory.length());
-        String location = A_directory.substring(0, A_directory.lastIndexOf("\\") + 1);
+        UDPFileTransfer file_transfer = new UDPFileTransfer();
+        String name = A_directory.substring(A_directory.lastIndexOf("\\") + 1, A_directory.length()); // filename from the directory
+        String location = A_directory.substring(0, A_directory.lastIndexOf("\\") + 1);                //location from the directory
+       
         file_transfer.setLocation_B(B_directory);
         file_transfer.setName(name);
         file_transfer.setLocation_A(A_directory);
@@ -60,18 +65,23 @@ public class UDPClient {
 
         if (file.isFile()) {
             try {
-                DataInputStream data_is = new DataInputStream(new FileInputStream(file));
-                long length = (int) file.length();
-                byte[] fileBytes = new byte[(int) length];
-                int read = 0;
-                int numRead = 0;
+                DataInputStream data_is = new DataInputStream(new FileInputStream(file)); //gets input bytes from file
+                long length = (int) file.length();                              //the entire file length
+                byte[] contentBytes = new byte[(int) length];
+                
+                int readSoFar = 0;
+                int readingLeft = 0;
 
-                while (read < fileBytes.length && (numRead = data_is.read(fileBytes, read, fileBytes.length - read)) >= 0) {
-                    read = read + numRead;
+                //read func reads upto 'length' number of bytes starting from readSoFar from the input stream into an array. 
+                //it returns the total number of bytes read. If it is the end of the file, -1 will be returned.
+                while (readSoFar < contentBytes.length                          
+                        && (readingLeft = data_is.read(contentBytes, readSoFar, contentBytes.length - readSoFar)) >= 0)
+                {
+                    readSoFar = readSoFar + readingLeft;
                 }
 
                 file_transfer.setSize(length);
-                file_transfer.setContent(fileBytes);
+                file_transfer.setContent(contentBytes);
                 file_transfer.setUpdate("Success");
 
             } catch (Exception e) {
