@@ -1,4 +1,4 @@
-package FileTransfer4390;
+package computernetwork;
 
 import FileTransfer4390.FileTransfer;
 import java.io.*;
