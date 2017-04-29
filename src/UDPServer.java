@@ -1,6 +1,6 @@
 package computernetwork;
 
-import FileTransfer4390.FileTransfer;
+import computernetwork.UDPFileTransfer;
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -10,38 +10,43 @@ import java.net.SocketException;
 public class UDPServer {
 
     private DatagramSocket soc = null;
-    private FileTransfer file_transfer = null;
+    private UDPFileTransfer file_transfer = null;
 
     public UDPServer() {
     }
 
     public void Socket_Create_Listen() {
-        
+
         try {
-            soc = new DatagramSocket(3500);
-            byte[] receivedContent = new byte[1024 * 50];
+            
+            soc = new DatagramSocket(3500);                                     //open socket, port#3500
+            byte[] receivedContent = new byte[1024 * 50];                       //byte array size [50*1024]
 
             while (true) {
 
                 DatagramPacket receivedFile = new DatagramPacket(receivedContent, receivedContent.length);
                 soc.receive(receivedFile);
-                byte[] content = receivedFile.getData();
-                ByteArrayInputStream byte_is = new ByteArrayInputStream(content);
-                ObjectInputStream obj_is = new ObjectInputStream(byte_is);
-                file_transfer = (FileTransfer) obj_is.readObject();
+                byte[] content = receivedFile.getData();                        //getData gets content of receivedFile
 
-                if (file_transfer.getUpdate().equalsIgnoreCase("Error")) {
-                    System.out.println("Error in transfering file content at UDPClient");
+                ByteArrayInputStream byte_is = new ByteArrayInputStream(content); //accepts byte array as a parameter
+                ObjectInputStream obj_is = new ObjectInputStream(byte_is);      //deserializes primitive data & objects
+
+                file_transfer = (UDPFileTransfer) obj_is.readObject();
+                if (file_transfer.getUpdate().equalsIgnoreCase("Error")) {       //Error in File transferring 
+                    System.out.println("Error in transfering file at UDPClient");
                     System.exit(0);
                 }
 
-                FileTransferring(); // writing the file to hard disk
-                InetAddress ip_adrs = receivedFile.getAddress();    //library class DatagramPacket getAddress()
-                int portNumber = receivedFile.getPort();            //library class DatagramPacket getPort()
-                String reply = "Thank you for the message";
-                byte[] replyBytea = reply.getBytes();
-                DatagramPacket replyPacket = new DatagramPacket(replyBytea, replyBytea.length, ip_adrs, portNumber);
-                soc.send(replyPacket);
+                FileTransferring();
+
+                InetAddress ip_adrs = receivedFile.getAddress();                //library class DatagramPacket getAddress() gets adrs of receivedFile
+                int portNumber = receivedFile.getPort();                        //library class DatagramPacket getPort() gets port# of receivedFile
+
+                String ack = "Acknowledged";                                    //Server sending acknowledgement
+                byte[] ackBytes = ack.getBytes();
+                DatagramPacket ackPacket = new DatagramPacket(ackBytes, ackBytes.length, ip_adrs, portNumber);
+                soc.send(ackPacket);
+
                 Thread.sleep(3000);
                 System.exit(0);
             }
@@ -59,21 +64,23 @@ public class UDPServer {
 
     public void FileTransferring() {
 
-        String outputFile = file_transfer.getLocation_B() + file_transfer.getName();
+        String received_filename = file_transfer.getLocation_B() + file_transfer.getName();
 
         if (!new File(file_transfer.getLocation_B()).exists()) {
-            new File(file_transfer.getLocation_B()).mkdirs();
+            new File(file_transfer.getLocation_B()).mkdirs();                   
         }
 
-        File dstFile = new File(outputFile);
-        FileOutputStream file_os = null;
+        File final_file = new File(received_filename);
+        FileOutputStream file_os = null;                                        //writes data to File
 
         try {
-            file_os = new FileOutputStream(dstFile);
-            file_os.write(file_transfer.getContent());
+
+            file_os = new FileOutputStream(final_file);
+            file_os.write(file_transfer.getContent());                          //file transferring including its content
             file_os.flush();
             file_os.close();
-            System.out.println("Output file : " + outputFile + " is successfully saved ");
+
+            System.out.println("Final file : " + received_filename + " is created including its content");
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
