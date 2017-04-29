@@ -2,9 +2,9 @@ package computernetwork;
 
 import java.io.Serializable;
 
-public class FileTransfer implements Serializable {
+public class UDPFileTransfer implements Serializable {
 
-    public FileTransfer() {
+    public UDPFileTransfer() {
     }
 
     private static final long serialVersionUID = 1L;
