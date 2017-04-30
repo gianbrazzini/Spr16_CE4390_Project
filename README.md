@@ -6,6 +6,7 @@
 
 #### Setup and Run ####
 1. Open Command Prompt to project folder
+2. 'java '
 
 #### Assignment ####
 Implement a file transfer protocol.

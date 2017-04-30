@@ -7,15 +7,8 @@ public class UDPClient {
 	private static Logger logs = null;
     private DatagramSocket soc = null;
     private UDPFileTransfer transfer = null;
-    private static String A_directory = "C:\\Users\\Maisha\\Desktop\\UDP\\A\\fruits.txt";
-    private static String B_directory = "C:\\Users\\Maisha\\Desktop\\UDP\\B\\";
     private String host = "localHost";
 
-    public static void main(String[] args) {
-        UDPClient client = new UDPClient();
-        client.ConnectionSetup(new File(A_directory));
-    }
-    
     public static void send(File transferFile, Logger _logs) {
     	logs = _logs;
     	UDPClient client = new UDPClient();
@@ -65,10 +58,10 @@ public class UDPClient {
         UDPFileTransfer file_transfer = new UDPFileTransfer();
         String name = thisFile.getName(); 		// filename from the directory
         String location = thisFile.getPath(); 	// location from the directory
-       
-        file_transfer.setLocation_B(B_directory);
-        file_transfer.setName(name);
+
         file_transfer.setLocation_A(location);
+        file_transfer.setLocation_B(location);
+        file_transfer.setName(name);
         File file = thisFile;
 
         if (file.isFile()) {
@@ -82,6 +75,7 @@ public class UDPClient {
 
                 //read func reads upto 'length' number of bytes starting from readSoFar from the input stream into an array. 
                 //it returns the total number of bytes read. If it is the end of the file, -1 will be returned.
+                            
                 while (readSoFar < contentBytes.length                          
                         && (readingLeft = data_is.read(contentBytes, readSoFar, contentBytes.length - readSoFar)) >= 0)
                 {
@@ -93,7 +87,7 @@ public class UDPClient {
                 file_transfer.setUpdate("Success");
 
             } catch (Exception e) {
-            	logs.error("There was an error creating the packet. Reason=" + e.toString());
+            	logs.error("Could not create packet. Reason=" + e.toString());
                 e.printStackTrace();
                 file_transfer.setUpdate("Error");
             }

@@ -10,11 +10,6 @@ public class UDPServer {
     private DatagramSocket soc = null;
     private UDPFileTransfer file_transfer = null;
 
-    public static void main(String[] args) {
-        UDPServer server = new UDPServer();
-        server.Socket_Create_Listen();
-    }
-    
     public static void receive(String address, int port, Logger _logs) {
     	logs = _logs;
         UDPServer server = new UDPServer();
