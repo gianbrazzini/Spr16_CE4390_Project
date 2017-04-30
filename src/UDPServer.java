@@ -1,4 +1,3 @@
-
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -7,40 +6,25 @@ import java.net.SocketException;
 
 public class UDPServer {
 
-    private static DatagramSocket soc = null;
-    private static UDPFileTransfer file_transfer = null;
-
-    public static void FileTransferring() {
-
-        String received_filename = file_transfer.getLocation_B() + file_transfer.getName();
-
-        if (!new File(file_transfer.getLocation_B()).exists()) {
-            new File(file_transfer.getLocation_B()).mkdirs();                   
-        }
-
-        File final_file = new File(received_filename);
-        FileOutputStream file_os = null;                                        //writes data to File
-
-        try {
-
-            file_os = new FileOutputStream(final_file);
-            file_os.write(file_transfer.getContent());                          //file transferring including its content
-            file_os.flush();
-            file_os.close();
-
-            System.out.println("Final file : " + received_filename + " is created including its content");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
+	private static Logger logs = null;
+    private DatagramSocket soc = null;
+    private UDPFileTransfer file_transfer = null;
 
     public static void main(String[] args) {
         UDPServer server = new UDPServer();
+        server.Socket_Create_Listen();
+    }
+    
+    public static void receive(String address, int port, Logger _logs) {
+    	logs = _logs;
+        UDPServer server = new UDPServer();
+        server.Socket_Create_Listen();
+    }
+    
+    public void Socket_Create_Listen() {
+
         try {
+            
             soc = new DatagramSocket(3500);                                     //open socket, port#3500
             byte[] receivedContent = new byte[1024 * 50];                       //byte array size [50*1024]
 
@@ -83,4 +67,32 @@ public class UDPServer {
             e.printStackTrace();
         }
     }
+
+    public void FileTransferring() {
+
+    	String received_filename = "udp_" + file_transfer.getName();
+
+        if (!new File(file_transfer.getLocation_B()).exists()) {
+            new File(file_transfer.getLocation_B()).mkdirs();                   
+        }
+
+        File final_file = new File(received_filename);
+        FileOutputStream file_os = null;                                        //writes data to File
+
+        try {
+            file_os = new FileOutputStream(final_file);
+            file_os.write(file_transfer.getContent());                          //file transferring including its content
+            file_os.flush();
+            file_os.close();
+        	logs.log("Success! Filename=" + received_filename);
+            
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    
 }

@@ -4,22 +4,72 @@ import java.net.*;
 
 public class UDPClient {
 
-    private static DatagramSocket soc = null;
-    private static UDPFileTransfer transfer = null;
+	private static Logger logs = null;
+    private DatagramSocket soc = null;
+    private UDPFileTransfer transfer = null;
     private static String A_directory = "C:\\Users\\Maisha\\Desktop\\UDP\\A\\fruits.txt";
     private static String B_directory = "C:\\Users\\Maisha\\Desktop\\UDP\\B\\";
-    private static String host = "localHost";
+    private String host = "localHost";
 
-    public static UDPFileTransfer getFileTransfer() {
+    public static void main(String[] args) {
+        UDPClient client = new UDPClient();
+        client.ConnectionSetup(new File(A_directory));
+    }
+    
+    public static void send(File transferFile, Logger _logs) {
+    	logs = _logs;
+    	UDPClient client = new UDPClient();
+        client.ConnectionSetup(transferFile);
+    }
+
+    public void ConnectionSetup(File transferFile) {
+
+        try {
+
+            soc = new DatagramSocket();                                         //open socket
+            InetAddress ip_adrs = InetAddress.getByName(host);                  //host ip adrs
+            byte[] receivedContent = new byte[1024];
+            transfer = getFileTransfer(transferFile);
+            
+            ByteArrayOutputStream byte_os = new ByteArrayOutputStream();        //creates a ByteArrayOutputStream buffer of 32 byte.
+            ObjectOutputStream obj_os = new ObjectOutputStream(byte_os);        //writes primitive data types & graphs of Java objects
+            obj_os.writeObject(transfer);
+            
+            byte[] content = byte_os.toByteArray();
+            DatagramPacket sendFile = new DatagramPacket(content, content.length, ip_adrs, 3500);
+            soc.send(sendFile);       
+        	logs.log("Sending file through UDP...");        
+        	
+        	//file sent output
+            DatagramPacket receivedFile = new DatagramPacket(receivedContent, receivedContent.length); //receivedFile for Server
+            soc.receive(receivedFile);
+            String ack = new String(receivedFile.getData());                     //library class DatagramPacket getData()
+            logs.log("UDPServer " + ack);
+            
+            Thread.sleep(2000);
+            System.exit(0);
+
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public UDPFileTransfer getFileTransfer(File thisFile) {
 
         UDPFileTransfer file_transfer = new UDPFileTransfer();
-        String name = A_directory.substring(A_directory.lastIndexOf("\\") + 1, A_directory.length()); // filename from the directory
-        String location = A_directory.substring(0, A_directory.lastIndexOf("\\") + 1);                //location from the directory
+        String name = thisFile.getName(); 		// filename from the directory
+        String location = thisFile.getPath(); 	// location from the directory
        
         file_transfer.setLocation_B(B_directory);
         file_transfer.setName(name);
-        file_transfer.setLocation_A(A_directory);
-        File file = new File(A_directory);
+        file_transfer.setLocation_A(location);
+        File file = thisFile;
 
         if (file.isFile()) {
             try {
@@ -43,49 +93,14 @@ public class UDPClient {
                 file_transfer.setUpdate("Success");
 
             } catch (Exception e) {
+            	logs.error("There was an error creating the packet. Reason=" + e.toString());
                 e.printStackTrace();
                 file_transfer.setUpdate("Error");
             }
         } else {
-            System.out.println("Error in finding the file");
+            logs.error("File could not be found.");
             file_transfer.setUpdate("Error");
         }
         return file_transfer;
-    }
-
-    public static void main(String[] args) {
-    	try {
-
-            soc = new DatagramSocket();                                         //open socket
-            InetAddress ip_adrs = InetAddress.getByName(host);                  //host ip adrs
-            byte[] receivedContent = new byte[1024];
-            transfer = getFileTransfer();
-            
-            ByteArrayOutputStream byte_os = new ByteArrayOutputStream();        //creates a ByteArrayOutputStream buffer of 32 byte.
-            ObjectOutputStream obj_os = new ObjectOutputStream(byte_os);        //writes primitive data types & graphs of Java objects
-            obj_os.writeObject(transfer);
-            
-            byte[] content = byte_os.toByteArray();
-            DatagramPacket sendFile = new DatagramPacket(content, content.length, ip_adrs, 3500);
-            soc.send(sendFile);                                                 //Sending file
-            System.out.println("File has been sent from UDPClient");            //file sent output
-            
-            DatagramPacket receivedFile = new DatagramPacket(receivedContent, receivedContent.length); //receivedFile for Server
-            soc.receive(receivedFile);
-            String ack = new String(receivedFile.getData());                     //library class DatagramPacket getData()
-            System.out.println("UDPServer " + ack);
-            
-            Thread.sleep(2000);
-            System.exit(0);
-
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }

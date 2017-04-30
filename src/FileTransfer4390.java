@@ -40,7 +40,7 @@ class FileTransfer4390
 			if (action.equals(SEND)) {
 				/* User selected UDP */
 				if (protocol.equals(UDP)) {
-					//write code
+					UDPClient.send(inputFile, logs);
 				/* TCP as default */
 				} else {
 					transfer.sendFile(inputFile);
@@ -48,7 +48,7 @@ class FileTransfer4390
 			} else if (action.equals(RECEIVE)) {
 				/* User selected UDP */
 				if (protocol.equals(UDP)) {
-					
+					UDPServer.receive(address, port, logs);
 				/* TCP as default */
 				} else {
 					transfer.receiveFile(address);

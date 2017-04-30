@@ -132,8 +132,7 @@ public class TransferHandler {
 	 * 
 	 * @param file
 	 */
-	public void sendFile(File file) throws UnknownHostException, IOException
-	{
+	public void sendFile(File file) throws UnknownHostException, IOException {
 		InetAddress iAddress = InetAddress.getLocalHost();
 		String currentIp = iAddress.getHostAddress();
         
@@ -156,8 +155,8 @@ public class TransferHandler {
     		 outputData[];
         int tries = 0;
         long response_status, response_index, response_check;
-        while (true) 
-        { 	
+        while (true) {
+        	
         	if (!headerSent) {
         		outputData = new byte[PACKET_SIZE];
         		outputData = populatePacket(outputData, fileName, 0, 15);
@@ -166,22 +165,15 @@ public class TransferHandler {
         		out.write(outputData, 0, PACKET_SIZE);
         		
         		in.read(inputData, 0, PACKET_SIZE);
-        		if (isLong(inputData, 0, check+fileLength))
-        		{
+        		if (isLong(inputData, 0, check+fileLength)) {
         			log.log("Uploading file...\n");
         			headerSent = true;
-        		}
-        		else
-        		{
+        		} else {
         			log.log("Failure trying to connect, retrying...");
         			out.write(outputData, 0, PACKET_SIZE);
         		}
-        	}
-        	//else if (index <= lastIndex)
-        	else if (index < lastIndex)
-        	{
-        		//System.out.println(index + "<" + lastIndex);
-        		//System.out.println("SENDING DATA; INDEX: " + index + ", SIZE: " + lastIndex + ", CHECK:" + check);
+        		
+        	} else if (index < lastIndex) {
         		outputData = new byte[PACKET_SIZE];
         		outputData = populatePacket(outputData, check+index, 0);
         		outputData = populatePacket(outputData, index, 8);
@@ -196,14 +188,11 @@ public class TransferHandler {
 				response_status = longFromResponse(inputData, 0);
 				response_index = longFromResponse(inputData, 8);
 				response_check = longFromResponse(inputData, 16);
-				if (response_status == 1)
-				{
+				if (response_status == 1) {
 					System.out.println("Successful packet. index: " + index);
 					tries = 0;
 					index++;
-				}
-				else if (tries < 3)
-				{
+				} else if (tries < 3) {
 					System.out.print("index: "+ index +", tries: " + tries + ", ");
 					System.out.println("Resending packet.");
 					
@@ -212,18 +201,14 @@ public class TransferHandler {
 					}
 					
 					tries++;
-				}
-				else 
-				{
+				} else {
 					outputData = new byte[2048];
 	        		outputData = populatePacket(outputData, -1, 0);
 					out.write(outputData, 0, PACKET_SIZE);
 					
 					log.error("Hit max number of tries.");
 				}
-        	}
-        	else
-        	{
+        	} else {
         		System.out.println("SENDING EXIT PACKET");
         		outputData = new byte[PACKET_SIZE];
         		outputData = populatePacket(outputData, check+index, 0);
@@ -242,8 +227,7 @@ public class TransferHandler {
         } 
         int val = 0;
         System.out.println("data len: " + fileData.length);
-        for (int i=0; i<fileData.length; i++)
-        {
+        for (int i=0; i<fileData.length; i++) {
         	val += (int)fileData[i];
         }
         System.out.println(val);
