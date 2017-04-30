@@ -1,0 +1,13 @@
+UDP Command Line:
+
+java FileTransfer4390 --receive --address 129.110.241.67 -b 9999 --protocol udp
+
+java FileTransfer4390 --send -b 9999 --protocol udp --filename fruits.txt
+
+
+
+TCP Command Line:
+java FileTransfer4390 --receive --address 129.110.241.67 -b 9999 --protocol tcp
+
+java FileTransfer4390 --send -b 9999 --protocol tcp --filename fruits.txt
+
